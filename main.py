@@ -1,3 +1,4 @@
+import re
 from typing import Dict
 
 import cv2
@@ -131,17 +132,20 @@ def clean_titles(titles):
 
 def compare_titles(titles):
     total_titles = len(titles)
+    print(total_titles)
     matching_pairs = 0
 
     title_array = list(titles.values())
 
     for i in range(total_titles - 1):
         title1 = title_array[i]
+        print(title1)
 
         for j in range(i + 1, total_titles):
             title2 = title_array[j]
+            print(title2)
 
-            if has_similar_words(title1, title2):
+            if has_similar_words(title1, title2) and has_same_storage_capacity(title1, title2):
                 matching_pairs += 1
 
     unique_title_combinations = (total_titles * (total_titles - 1)) / 2
@@ -151,10 +155,11 @@ def compare_titles(titles):
     else:
         matching_percentage = 0.0
 
+    print(matching_percentage)
+
     similarity_threshold = 0.5  # Adjust the similarity threshold as needed
 
     return matching_percentage >= similarity_threshold
-
 
 def has_similar_words(title1, title2):
     words1 = title1.split()
@@ -177,8 +182,7 @@ def has_same_storage_capacity(title1, title2):
 
 
 def extract_storage_capacity(title):
-    import re
-    matches = re.findall(r'\b(\d+)\s*GB\b', title)
+    matches = re.findall(r'\b(\d+)\s*gb\b', title)
     if matches:
         return matches[0] + "GB"
     return None
