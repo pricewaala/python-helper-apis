@@ -1,3 +1,5 @@
+from typing import Dict
+
 import cv2
 import numpy as np
 from fastapi import FastAPI
@@ -102,6 +104,23 @@ async def get_product_data():
     return is_similar
 
 
+@app.post("/product-data")
+async def get_product_data(request_data: Dict[str, str]):
+    api_data = {
+        "Amazon": request_data.get("Amazon", ""),
+        "Flipkart": request_data.get("Flipkart", ""),
+        "Reliance": request_data.get("Reliance", "")
+    }
+
+    cleaned_titles = clean_titles(api_data)
+    is_similar = compare_titles(cleaned_titles)
+
+    if is_similar:
+        return {"message": "The titles are similar."}
+    else:
+        return {"message": "The titles are not similar."}
+
+
 def clean_titles(titles):
     clean_titles = {}
     for key, title in titles.items():
@@ -114,20 +133,26 @@ def compare_titles(titles):
     total_titles = len(titles)
     matching_pairs = 0
 
-    title_list = list(titles.values())
+    title_array = list(titles.values())
 
     for i in range(total_titles - 1):
-        title1 = title_list[i]
+        title1 = title_array[i]
 
         for j in range(i + 1, total_titles):
-            title2 = title_list[j]
+            title2 = title_array[j]
 
-            if has_similar_words(title1, title2) and not has_same_storage_capacity(title1, title2):
+            if has_similar_words(title1, title2):
                 matching_pairs += 1
 
-    unique_title_combinations = (total_titles * (total_titles - 1)) // 2
+    unique_title_combinations = (total_titles * (total_titles - 1)) / 2
+
+    if unique_title_combinations != 0:  # Check if the value is non-zero
+        matching_percentage = matching_pairs / unique_title_combinations
+    else:
+        matching_percentage = 0.0
+
     similarity_threshold = 0.5  # Adjust the similarity threshold as needed
-    matching_percentage = matching_pairs / unique_title_combinations
+
     return matching_percentage >= similarity_threshold
 
 
