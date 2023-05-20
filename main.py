@@ -178,7 +178,7 @@ def has_same_storage_capacity(title1, title2):
 
 def extract_storage_capacity(title):
     import re
-    matches = re.findall(r'\b(\d+GB)\b', title)
+    matches = re.findall(r'\b(\d+)\s*GB\b', title)
     if matches:
-        return matches[0]
+        return matches[0] + "GB"
     return None
