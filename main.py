@@ -116,9 +116,9 @@ async def get_product_data(request_data: Dict[str, str]):
     is_similar = compare_titles(cleaned_titles)
 
     if is_similar:
-        return {"message": "The titles are similar."}
+        return "The titles are similar."
     else:
-        return {"message": "The titles are not similar."}
+        return "The titles are not similar."
 
 
 def clean_titles(titles):
