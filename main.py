@@ -228,8 +228,11 @@ def has_similar_words(title1, title2):
 def has_same_storage_capacity(title1, title2):
     storage_capacity1 = extract_storage_capacity(title1)
     storage_capacity2 = extract_storage_capacity(title2)
-    return storage_capacity1 is not None and storage_capacity1 == storage_capacity2
 
+    if storage_capacity1 is not None and storage_capacity2 is not None:
+        return any(capacity1 == capacity2 for capacity1 in storage_capacity1 for capacity2 in storage_capacity2)
+
+    return False
 
 def extract_storage_capacity(title):
     matches = re.findall(r'\b(\d+)\s*gb\b', title)
