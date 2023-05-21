@@ -86,80 +86,130 @@ def compare_images_v2(image1_path, image2_path):
         return False  # Images are different
 
 
-@app.get("/trial-data-2")
-async def get_product_data():
-    api_data = {
-        "Amazon": "Apple iPhone 13 512GB YELLOW",
-        "Flipkart": "128GB Apple iPhone 13  - (Product) YELLOW",
-        "Reliance": "iPhone Apple  13 (128GB) -  YELLOW"
-    }
+# @app.get("/trial-data-2")
+# async def get_product_data():
+#     api_data = {
+#         "Amazon": "Apple iPhone 13 512GB YELLOW",
+#         "Flipkart": "128GB Apple iPhone 13  - (Product) YELLOW",
+#         "Reliance": "iPhone Apple  13 (128GB) -  YELLOW"
+#     }
+#
+#     cleaned_titles = clean_titles(api_data)
+#     is_similar = compare_titles(cleaned_titles)
+#
+#     if is_similar:
+#         print("The titles are similar.")
+#     else:
+#         print("The titles are not similar.")
+#
+#     return is_similar
 
-    cleaned_titles = clean_titles(api_data)
-    is_similar = compare_titles(cleaned_titles)
 
-    if is_similar:
-        print("The titles are similar.")
-    else:
-        print("The titles are not similar.")
-
-    return is_similar
+# @app.post("/product-data")
+# async def get_product_data(request_data: Dict[str, str]):
+#     api_data = {
+#         "Amazon": request_data.get("Amazon", ""),
+#         "Flipkart": request_data.get("Flipkart", ""),
+#         "Reliance": request_data.get("Reliance", "")
+#     }
+#
+#     cleaned_titles = clean_titles(api_data)
+#     is_similar = compare_titles(cleaned_titles)
+#
+#     if is_similar:
+#         return "The titles are similar."
+#     else:
+#         return "The titles are not similar."
+#
+#
+# def clean_titles(titles):
+#     clean_titles = {}
+#     for key, title in titles.items():
+#         clean_title = ''.join(e for e in title if e.isalnum() or e.isspace()).lower()
+#         clean_titles[key] = clean_title
+#     return clean_titles
+#
+#
+# def compare_titles(titles):
+#     total_titles = len(titles)
+#     print(total_titles)
+#     matching_pairs = 0
+#
+#     title_array = list(titles.values())
+#
+#     for i in range(total_titles - 1):
+#         title1 = title_array[i]
+#         print(title1)
+#
+#         for j in range(i + 1, total_titles):
+#             title2 = title_array[j]
+#             print(title2)
+#
+#             if has_similar_words(title1, title2) and has_same_storage_capacity(title1, title2):
+#                 matching_pairs += 1
+#
+#     unique_title_combinations = (total_titles * (total_titles - 1)) / 2
+#
+#     if unique_title_combinations != 0:  # Check if the value is non-zero
+#         matching_percentage = matching_pairs / unique_title_combinations
+#     else:
+#         matching_percentage = 0.0
+#
+#     print(matching_percentage)
+#
+#     similarity_threshold = 0.90  # Adjust the similarity threshold as needed
+#
+#     return matching_percentage >= similarity_threshold
+#
+# def has_similar_words(title1, title2):
+#     words1 = title1.split()
+#     words2 = title2.split()
+#
+#     matching_words = 0
+#
+#     for word in words1:
+#         if any(word.lower() in w.lower() for w in words2):
+#             matching_words += 1
+#
+#     word_percentage = matching_words / len(words1)
+#     return word_percentage > 0.8
+#
+#
+# def has_same_storage_capacity(title1, title2):
+#     storage_capacity1 = extract_storage_capacity(title1)
+#     storage_capacity2 = extract_storage_capacity(title2)
+#     return storage_capacity1 is not None and storage_capacity1 == storage_capacity2
+#
+#
+# def extract_storage_capacity(title):
+#     matches = re.findall(r'\b(\d+)\s*gb\b', title)
+#     if matches:
+#         return matches[0] + "GB"
+#     return None
 
 
 @app.post("/product-data")
-async def get_product_data(request_data: Dict[str, str]):
-    api_data = {
-        "Amazon": request_data.get("Amazon", ""),
-        "Flipkart": request_data.get("Flipkart", ""),
-        "Reliance": request_data.get("Reliance", "")
-    }
+async def compare_strings(request_data: Dict[str, str]):
+    title1 = request_data.get("title1", "")
+    title2 = request_data.get("title2", "")
 
-    cleaned_titles = clean_titles(api_data)
-    is_similar = compare_titles(cleaned_titles)
+    result = compare_strings(title1, title2)
+    return result
 
-    if is_similar:
+
+def compare_strings(title1, title2):
+    clean_title1 = clean_title(title1)
+    clean_title2 = clean_title(title2)
+
+    if has_similar_words(clean_title1, clean_title2) and has_same_storage_capacity(clean_title1, clean_title2):
         return "The titles are similar."
     else:
         return "The titles are not similar."
 
 
-def clean_titles(titles):
-    clean_titles = {}
-    for key, title in titles.items():
-        clean_title = ''.join(e for e in title if e.isalnum() or e.isspace()).lower()
-        clean_titles[key] = clean_title
-    return clean_titles
+def clean_title(title):
+    return ''.join(e for e in title if e.isalnum() or e.isspace()).lower()
 
-
-def compare_titles(titles):
-    total_titles = len(titles)
-    print(total_titles)
-    matching_pairs = 0
-
-    title_array = list(titles.values())
-
-    for i in range(total_titles - 1):
-        title1 = title_array[i]
-        print(title1)
-
-        for j in range(i + 1, total_titles):
-            title2 = title_array[j]
-            print(title2)
-
-            if has_similar_words(title1, title2) and has_same_storage_capacity(title1, title2):
-                matching_pairs += 1
-
-    unique_title_combinations = (total_titles * (total_titles - 1)) / 2
-
-    if unique_title_combinations != 0:  # Check if the value is non-zero
-        matching_percentage = matching_pairs / unique_title_combinations
-    else:
-        matching_percentage = 0.0
-
-    print(matching_percentage)
-
-    similarity_threshold = 0.5  # Adjust the similarity threshold as needed
-
-    return matching_percentage >= similarity_threshold
 
 def has_similar_words(title1, title2):
     words1 = title1.split()
@@ -172,7 +222,7 @@ def has_similar_words(title1, title2):
             matching_words += 1
 
     word_percentage = matching_words / len(words1)
-    return word_percentage > 0.8
+    return word_percentage > 0.85
 
 
 def has_same_storage_capacity(title1, title2):
