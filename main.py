@@ -222,7 +222,7 @@ def has_similar_words(title1, title2):
             matching_words += 1
 
     word_percentage = matching_words / len(words1)
-    return word_percentage > 0.85
+    return word_percentage > 0.9
 
 
 def has_same_storage_capacity(title1, title2):
