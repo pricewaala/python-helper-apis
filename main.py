@@ -4,9 +4,7 @@ from typing import Dict
 import cv2
 import numpy as np
 from fastapi import FastAPI
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from bs4 import BeautifulSoup
+from pyppeteer import launch
 
 
 app = FastAPI()
@@ -30,42 +28,33 @@ async def get_product_datav2():
 
 
 @app.get('/amazon/content/scrape/v1')
-def scrape_content(link: str):
+async def scrape_content(link: str):
     if not link:
         return {'error': 'Link parameter is missing'}
 
-    # Set up Chrome WebDriver options
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')  # Optional: Run Chrome in headless mode
-
-    # Provide the path to the Chrome WebDriver executable
-    webdriver_path = '/home/abhinav.personal/projects/chromedriver'  # Replace with the actual path
-
-    # Set up Chrome WebDriver
-    driver = webdriver.Chrome(executable_path=webdriver_path, options=chrome_options)
+    browser = await launch()  # Launch a new browser instance
+    page = await browser.newPage()  # Create a new page
 
     try:
-        # Make a request to the webpage
-        driver.get(link)
+        await page.goto(link)  # Navigate to the specified URL
 
-        # Extract the content of the hidden div using JavaScript injection
-        script = """
-               const div = document.getElementById('a-popover-10');
-               if (div) {
-                   return div.innerText;
-               } else {
-                   return null;
-               }
-               """
-        content = driver.execute_script(script)
+        # Evaluate JavaScript code on the page to retrieve the content of the hidden div
+        content = await page.evaluate('''
+            const div = document.getElementById('a-popover-10');
+            if (div) {
+                return div.innerText;
+            } else {
+                return null;
+            }
+        ''')
 
         if content:
             return {'content': content}
         else:
             return {'error': 'Hidden div not found'}
     finally:
-        # Quit the WebDriver after scraping
-        driver.quit()
+        await browser.close()  # Close the browser after scraping
+
 
 def compare_images_v2(image1_path, image2_path):
     # Read the images
