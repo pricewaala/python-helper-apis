@@ -4,7 +4,8 @@ from typing import Dict
 import cv2
 import numpy as np
 from fastapi import FastAPI
-from pyppeteer import launch
+import requests
+from bs4 import BeautifulSoup
 
 
 app = FastAPI()
@@ -26,35 +27,27 @@ async def get_product_datav2():
                           "/Users/abhinavpersonal/Downloads/amz.webp")
     return x
 
-
 @app.get('/amazon/content/scrape/v1')
-async def scrape_content(link: str):
+def scrape_content(link: str):
     if not link:
         return {'error': 'Link parameter is missing'}
 
-    browser = await launch()  # Launch a new browser instance
-    page = await browser.newPage()  # Create a new page
+    # Make a request to the webpage
+    response = requests.get(link)
 
-    try:
-        await page.goto(link)  # Navigate to the specified URL
+    # Parse the HTML content
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-        # Evaluate JavaScript code on the page to retrieve the content of the hidden div
-        content = await page.evaluate('''
-            const div = document.getElementById('a-popover-10');
-            if (div) {
-                return div.innerText;
-            } else {
-                return null;
-            }
-        ''')
+    # Find the hidden div using its class or ID
+    hidden_elements = soup.find_all(attrs={'aria-hidden': 'true'})
 
-        if content:
-            return {'content': content}
-        else:
-            return {'error': 'Hidden div not found'}
-    finally:
-        await browser.close()  # Close the browser after scraping
+    # Access the content of each hidden element
+    for element in hidden_elements:
+        print(element.text)# Replace with the appropriate class or ID
 
+    # Extract the content of the hidden div
+    print("END")
+    return element
 
 def compare_images_v2(image1_path, image2_path):
     # Read the images
