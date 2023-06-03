@@ -4,6 +4,10 @@ from typing import Dict
 import cv2
 import numpy as np
 from fastapi import FastAPI
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from bs4 import BeautifulSoup
+
 
 app = FastAPI()
 
@@ -24,6 +28,41 @@ async def get_product_datav2():
                           "/Users/abhinavpersonal/Downloads/amz.webp")
     return x
 
+
+@app.get('/amazon/content/scrape/v1')
+def scrape_content(link: str):
+    if not link:
+        return {'error': 'Link parameter is missing'}
+
+    # Set up Chrome WebDriver options
+    chrome_options = Options()
+    chrome_options.add_argument('--headless')  # Optional: Run Chrome in headless mode
+
+    # Provide the path to the Chrome WebDriver executable
+    webdriver_path = '/Users/abhinavpersonal/Downloads/chromedriver_mac64/chromedriver'  # Replace with the actual path
+
+    # Set up Chrome WebDriver
+    driver = webdriver.Chrome(executable_path=webdriver_path, options=chrome_options)
+
+    try:
+        # Make a request to the webpage
+        driver.get(link)
+
+        # Parse the HTML content
+        soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+        # Find the hidden div using its class or ID
+        hidden_div = soup.find('div', id='a-popover-10')  # Replace with the appropriate class or ID
+
+        # Extract the content of the hidden div
+        if hidden_div:
+            content = hidden_div.get_text()
+            return {'content': content}
+        else:
+            return {'error': 'Hidden div not found'}
+    finally:
+        # Quit the WebDriver after scraping
+        driver.quit()
 
 def compare_images_v2(image1_path, image2_path):
     # Read the images
@@ -222,7 +261,7 @@ def has_similar_words(title1, title2):
             matching_words += 1
 
     word_percentage = matching_words / len(words1)
-    return word_percentage > 0.9
+    return word_percentage > 0.88
 
 
 def has_same_storage_capacity(title1, title2):
