@@ -48,15 +48,18 @@ def scrape_content(link: str):
         # Make a request to the webpage
         driver.get(link)
 
-        # Parse the HTML content
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
+        # Extract the content of the hidden div using JavaScript injection
+        script = """
+               const div = document.getElementById('a-popover-10');
+               if (div) {
+                   return div.innerText;
+               } else {
+                   return null;
+               }
+               """
+        content = driver.execute_script(script)
 
-        # Find the hidden div using its class or ID
-        hidden_div = soup.find('div', id='a-popover-10')  # Replace with the appropriate class or ID
-
-        # Extract the content of the hidden div
-        if hidden_div:
-            content = hidden_div.get_text()
+        if content:
             return {'content': content}
         else:
             return {'error': 'Hidden div not found'}
