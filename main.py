@@ -39,7 +39,7 @@ def scrape_content(link: str):
     chrome_options.add_argument('--headless')  # Optional: Run Chrome in headless mode
 
     # Provide the path to the Chrome WebDriver executable
-    webdriver_path = '/Users/abhinavpersonal/Downloads/chromedriver_mac64/chromedriver'  # Replace with the actual path
+    webdriver_path = '/home/abhinav.personal/projects/chromedriver'  # Replace with the actual path
 
     # Set up Chrome WebDriver
     driver = webdriver.Chrome(executable_path=webdriver_path, options=chrome_options)
